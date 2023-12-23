@@ -41,3 +41,4 @@ Learned about some major practical DAX functions and measures.
 Learned about some major analytical visuals and reports.
 
 ## Final result
+![GitHub Logo](https://github.com/Fezzaioussama/Project-data-analytics-sales-insights/blob/main/Capture.PNG)
