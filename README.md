@@ -1,44 +1,120 @@
-# Project-data-analytics-sales-insights
-## Problem statement
+# Sales Insights — Data Analytics
 
-AtliQ hardware is a company which delivers computer hardware & peripheral Manufacturers to his clients, which has several branches throughout India. The sales director of the company is facing a lot of issues in terms of understanding how the business is performing and what are all the problem company is facing currently as the sales are not as expected and declining gradually. And whenever he calls the regional managers to get the current status of the sales and market, as a human behaviour, these people Humans are not comfortable in consuming numbers from excel files, which is obvious reason for the frustration.
+> Power BI dashboard over a MySQL sales database for AtliQ Hardware — turning four years of transactions into decisions the sales director can actually act on.
 
-## Solution
+![Dashboard](Capture.PNG)
 
-Sales director of the AltiQ hardware, decided to build a PowerBI Dashboard for converting the data into visual representation to make data driven decisions. So, he hired a team of data people to complete this task.
+## The problem
 
-## Steps Followed in this project
+AtliQ Hardware distributes computer hardware and peripherals across India.
+Revenue was declining and the sales director had no reliable read on why. Status
+came from calling regional managers, who reported from spreadsheets — so the
+picture arrived late, filtered through whoever was speaking, and nobody could
+compare markets side by side.
 
-Learned about AIMS grid for project planning.
-Used MySQL for retrieving the data from the database into Power BI.
-Data Cleaning in power query.
-Performed ETL process (Extract Transform and Load)
-Created measure for needs and used them for creating visuals in PowerBi.
-In the currency there were two types of currencies in transactions, performed currency conversion to make all the currency type same
-Data Validation
-Data Modelling and Visualization.
+Nobody makes good decisions by reading numbers out of Excel over the phone.
 
-## Major Changes/ Customizations Made
+## The solution
 
-1.Solved the ‘(blank)’ problem for the products section by deleting the original products table and adding the self-modified products table (where I have added the Products ranging from Prod280 to Prod339 with their product type (random type- b/w ‘Own Brand’ and ‘Distribution’). 2.Merged the original modified ‘sales_transaction’ table with the new ‘sales_transaction’ table having profit margin, cost price, etc.
-Insights
+A Power BI dashboard on top of the sales database, so performance by market,
+customer, and product is visible directly, and the underlying numbers are
+consistent because everyone reads the same model.
 
-In this dashboard, we can see company has generated total revenue in 4 years ₹ 985M, total profit margin ₹24.7M, Profit margin% 2.5%, Sales Qty ₹2M. in 2020 company has generated total revenue of ₹ 142M by selling a total of 350K and earned a profit of ₹ 2.1M.
-In 4 years Delhi NCR is our largest market in terms of revenue with ₹ 520M and total contribution of 52.8% with total revenue but if you look at the profit margin Delhi NCR is generating only 2.3% profit margin.
-If we check the profit margin then here In 2020 Bhubaneshwar comes into the picture which is generating the highest profit margin of 10.48%. Similarly, if we can check the Profit Contribution % by Market then here Mumbai is the largest player with 23.89% of total contribution in total profit.
-In 4 years Bengaluru generating the lowest profit margin of -20.8%.if we can check the Profit Contribution % by Market then here also Bengaluru is the Lower with -0.3% of total contribution in total profit.
-In our top 5 customers, the Electricalsara Stores is our biggest customer who has generated total ₹ 413 M revenue generated in 4 years.
-In our top 5 products,the Prod318 is our highest product has generated total ₹ 69M revenue generated in 4 years.
-In product type Distribution has generated the revenue of ₹494M and ownbrand revenue is ₹494M generated in entire 4 years.
-Revenue Trend is showing that in June 2020 revenue has been decreased drastically compared to the revenue last year and the profit margin was the least in April 2020.
+## Stack
 
-## Key Learnings
+| Layer | Tool |
+|---|---|
+| Source data | MySQL |
+| ETL / cleaning | Power Query |
+| Modelling & measures | Power BI, DAX |
+| Planning | AIMS grid |
 
-Learned about what real business data sets look like.
-Learned about how to write some major analysis queries in MySQL.
-how to connect the database’s tables to Power Bi and how to clean & modify the unwanted data in Power Query.
-Learned about some major practical DAX functions and measures.
-Learned about some major analytical visuals and reports.
+## Setup
 
-## Final result
-![GitHub Logo](https://github.com/Fezzaioussama/Project-data-analytics-sales-insights/blob/main/Capture.PNG)
+```bash
+mysql -u root -p < db_dump_version_2.sql
+```
+
+Then open `Sales Insights Data Analysis.pbix` in Power BI Desktop and point the
+MySQL connection at your local database.
+
+| File | Contents |
+|---|---|
+| `db_dump.sql` | Original database dump |
+| `db_dump_version_2.sql` | Revised dump — **use this one** |
+| `Sales Insights Data Analysis.pbix` | The Power BI report |
+| `Capture.PNG` | Dashboard screenshot |
+
+## Data model
+
+Five tables:
+
+| Table | Holds |
+|---|---|
+| `transactions` | Sales records — the fact table |
+| `customers` | Customer names and types |
+| `products` | Product codes and types (Own Brand / Distribution) |
+| `markets` | Cities and zones |
+| `date` | Date dimension for time intelligence |
+
+## Process
+
+1. Plan with the **AIMS grid** (Aim, Issue, Measure, Success criteria).
+2. Connect Power BI to MySQL and pull the tables.
+3. Clean in **Power Query** — drop nulls and negative-value rows.
+4. **Normalise currency.** Transactions arrived in two currencies; everything is
+   converted to a single one before aggregation. Without this every revenue
+   figure is silently wrong.
+5. Build **DAX measures** for revenue, profit margin, and contribution %.
+6. Validate against known totals.
+7. Model relationships and build the visuals.
+
+### Fixes applied to the source data
+
+- **The `(blank)` products problem.** The original `products` table was missing
+  Prod280–Prod339, so those transactions aggregated into a blank category.
+  Replaced with a completed table that includes them, each assigned a product
+  type.
+- **Merged transaction tables** so profit margin and cost price are available
+  alongside the original sales columns — profitability analysis isn't possible
+  without them.
+
+## Findings
+
+Four years, ₹985M revenue, ₹24.7M profit, **2.5% overall margin**, 2M units.
+
+**Revenue and profit don't track each other.** That's the headline:
+
+| Market | Revenue | Margin |
+|---|---|---|
+| Delhi NCR | ₹520M (52.8% of total) | **2.3%** — below company average |
+| Mumbai | — | 23.89% of total *profit* |
+| Bhubaneshwar | — | **10.48%** — highest margin (2020) |
+| Bengaluru | — | **−20.8%** — loss-making, −0.3% profit contribution |
+
+Delhi NCR is over half of all revenue at a below-average margin, while Mumbai
+contributes nearly a quarter of profit on far less revenue. Ranking markets by
+revenue — the intuitive move — points management at exactly the wrong places.
+Bengaluru actively destroys value.
+
+**Concentration risk.** Electricalsara Stores alone accounts for ₹413M of ₹985M
+— 42% of revenue in one customer.
+
+**Product mix.** Distribution and Own Brand each generated ~₹494M, an even
+split. Prod318 is the top product at ₹69M.
+
+**Timeline.** 2020 revenue was ₹142M on 350K units for ₹2.1M profit. Revenue
+dropped sharply in June 2020, and margin bottomed in April 2020.
+
+## Key learnings
+
+- What real business data actually looks like — incomplete dimension tables,
+  mixed currencies, and negative values that need handling before anything else.
+- Writing analysis queries in MySQL.
+- Connecting MySQL to Power BI, and cleaning in Power Query.
+- Practical DAX measures.
+- Choosing visuals that answer a question rather than just displaying data.
+
+## Credit
+
+Based on the AtliQ Hardware case study from Codebasics.
